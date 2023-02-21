@@ -6,9 +6,13 @@ This is a bot which adds commands to make images that look like Style bonus from
 /images (source of characters)
 
 PIL (image stitching)
+
 opencv-python (image recoloring via HSV)
+
 sys (command line args)
+
 enum (color enums)
+
 os (directories, removing temp files (IN THE FUTURE))
 
 # How to use locally

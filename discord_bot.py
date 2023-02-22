@@ -15,8 +15,10 @@ async def first_command(interaction, string:str, color:str):
 
 @client.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
+    generate_image.load_characters("images/")
     await tree.sync()
+    print(f'We have logged in as {client.user}')
+    
 
 @client.event
 async def on_message(message):

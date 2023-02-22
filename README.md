@@ -1,6 +1,6 @@
 # UltrakillStyleGeneratorBot
 
-This is a bot which adds commands to make images that look like Style bonus from the game [Ultrakill.](devilmayquake.com)
+This is a bot which adds commands to make images that look like Style bonuses from the game [Ultrakill.](devilmayquake.com)
 
 # Requirements
 /images (source of characters)
@@ -18,4 +18,4 @@ os (directories, removing temp files (IN THE FUTURE))
 # How to use locally
 ```python3 generate_image.py <outdir> <text> <color> [<text> <color>, ...]```
 
-This will generate a transparent image with the texts and colors in question, named after the inputted text.
+This will generate a transparent image with the texts and colors in question, named after the inputted text. Each block of text will be on its own line.

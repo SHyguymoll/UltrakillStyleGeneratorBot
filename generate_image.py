@@ -51,6 +51,8 @@ def generate_image(text_string: str, header: bool = False):
     current_color = TColor.RED
     final = Image.new('RGBA', (0, 0))
     for string in interpret_string:
+        if len(string) == 0: #ignore empty splits
+            continue
         if str(int(string[0])) == string[0]: #checking if the first character is a number
             match int(string[0]):
                 case 0:

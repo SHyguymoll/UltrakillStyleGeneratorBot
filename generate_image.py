@@ -1,6 +1,5 @@
 from PIL import Image
 from sys import argv
-import cv2
 from enum import Enum
 from os import makedirs, path
  

@@ -18,15 +18,33 @@ def load_characters(dir: str):
     for letter in char_array:
         characters[letter] = []
         try:
-            characters[letter].append(Image.open(dir + "header/" + letter + ".png"))
+            characters[letter].append(Image.open(dir + "header/" + letter + ".png").getchannel("A"))
         except IOError:
             print("could not load header character " + letter)
             characters[letter].append(Image.new('RGBA', (0, 0)))
         try:
-            characters[letter].append(Image.open(dir + "single/" + letter + ".png"))
+            characters[letter].append(Image.open(dir + "single/" + letter + ".png").getchannel("A"))
         except IOError:
             print("could not load single character " + letter)
             characters[letter].append(Image.new('RGBA', (0, 0)))
+
+def pick_color(color: TColor):
+    match color:
+        case TColor.WHITE:
+            return (255, 255, 255, 255)
+        case TColor.ORANGE:
+            return (255, 170, 0, 255)
+        case TColor.GREEN:
+            return (22, 255, 29, 255)
+        case TColor.BLUE:
+            return (39, 255, 236, 255)
+        case TColor.RED:
+            return (255, 0, 0, 255)
+
+def generate_character(character_mask: Image.Image, color: TColor) -> Image.Image:
+    char = Image.new("RGBA", character_mask.size, pick_color(color))
+    char.putalpha(character_mask)
+    return char
 
 def generate_image(text_string: str, header: bool = False):
     interpret_string = text_string.split("_")
@@ -47,24 +65,27 @@ def generate_image(text_string: str, header: bool = False):
                     current_color = TColor.RED
                 case _: #invalid color index, fallback to white
                     current_color = TColor.WHITE
+            string = string[1:] #remove the number as we've used it up
         for ind, letter in enumerate(string):
             match letter:
                 case "+":
-                    final = merge_hori(final,recolor(characters["PLUS"][header], current_color))
+                    final = merge_hori(final,generate_character(characters["PLUS"][header], current_color))
                     if ind == 0: #add separation from plus
-                        for _ in range(3): merge_hori(final,recolor(characters["SPACE"][header], current_color))
+                        for _i in range(3):
+                            merge_hori(final,generate_character(characters["SPACE"][header], TColor.WHITE))
                 case "-":
-                    final = merge_hori(final,recolor(characters["MINUS"][header], current_color))
+                    final = merge_hori(final,generate_character(characters["MINUS"][header], current_color))
                     if ind == 0: #ditto for minus
-                        for _ in range(3): merge_hori(final,recolor(characters["SPACE"][header], current_color))
+                        for _i in range(3):
+                            merge_hori(final,generate_character(characters["SPACE"][header], TColor.WHITE))
                 case "(":
-                    final = merge_hori(final,recolor(characters["LEFT_BRACKET"][header], current_color))
+                    final = merge_hori(final,generate_character(characters["LEFT_BRACKET"][header], current_color))
                 case ")":
-                    final = merge_hori(final,recolor(characters["RIGHT_BRACKET"][header], current_color))
+                    final = merge_hori(final,generate_character(characters["RIGHT_BRACKET"][header], current_color))
                 case " ":
-                    final = merge_hori(final,recolor(characters["SPACE"][header], current_color))
+                    final = merge_hori(final,generate_character(characters["SPACE"][header], TColor.WHITE))
                 case _:
-                    final = merge_hori(final,recolor(characters[letter.upper()][header], current_color))
+                    final = merge_hori(final,generate_character(characters[letter.upper()][header], current_color))
     return final
 
 def merge_hori(im1, im2):
@@ -83,38 +104,16 @@ def merge_vert(im1, im2):
     im.paste(im2, (0, im1.size[1]))
     return im
 
-#TODO: Add WHITE color mode
-def recolor(img: Image.Image, mode: TColor):
-    save_alpha = img.getchannel("A")
-    image_hsl = img.convert("HSL")
-    h, s, l = image_hsl.split()
-    match mode:
-        case TColor.WHITE:
-            l += 100
-        case TColor.ORANGE:
-            h += 12
-        case TColor.GREEN: 
-            h += 52
-        case TColor.BLUE:
-            h += 90
-        case TColor.RED:
-            h += 0 #do nothing, it is already red
-    image_hsl = Image.merge("HSL", (h, s, l))
-    resav_img = image_hsl.convert("RGBA")
-    resav_img.putalpha(save_alpha)
-    return resav_img
-
-#TODO: figure out removing temp.png
 if __name__ == "__main__":
     load_characters("images/")
     imgs = []
     filename = argv[1]
-    if not path.exists(filename):
-        makedirs(filename)
+    dir = filename[::-1].split("/", 1)[1][::-1] + "/" #this returns just the leading path to the actual file
+    if not path.exists(dir):
+        makedirs(dir)
     strings = argv[2:]
     for ind in range(len(strings)):
-        imgs.append(generate_image(strings[ind], True if ind == 0 else False))
-    filename += ".png"
+        imgs.append(generate_image(strings[ind], True if ind != 0 else False))
     comp_image = Image.new('RGBA', (0, 0))
     for img in imgs:
         comp_image = merge_vert(comp_image, img)

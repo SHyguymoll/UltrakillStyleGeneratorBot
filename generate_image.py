@@ -11,37 +11,50 @@ class TColor(Enum):
     BLUE = 3
     RED = 4
 
-characters = {}
 char_array = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","PLUS","MINUS","LEFT_BRACKET","RIGHT_BRACKET","SPACE"]
+
+characters = {}
 
 def load_characters(dir: str):
     for letter in char_array:
+        characters[letter] = []
         try:
-            characters[letter] = Image.open(dir + letter + ".png")
+            characters[letter].append(Image.open(dir + "header/" + letter + ".png"))
         except IOError:
-            print("could not load character " + letter)
-            characters[letter] = Image.new('RGBA', (0, 0))
+            print("could not load header character " + letter)
+            characters[letter].append(Image.new('RGBA', (0, 0)))
+        try:
+            characters[letter].append(Image.open(dir + "single/" + letter + ".png"))
+        except IOError:
+            print("could not load single character " + letter)
+            characters[letter].append(Image.new('RGBA', (0, 0)))
 
-def generate_image(text_string: str, color: int):
+def generate_image(text_string: str, header: bool = False):
+    interpret_string = text_string.split("_")
+    current_color = TColor.RED
     final = Image.new('RGBA', (0, 0))
-    for letter in text_string:
-        match letter:
-            case "+":
-                final = merge_hori(final,characters["PLUS"])
-            case "-":
-                final = merge_hori(final,characters["MINUS"])
-            case "(":
-                final = merge_hori(final,characters["LEFT_BRACKET"])
-            case ")":
-                final = merge_hori(final,characters["RIGHT_BRACKET"])
-            case " ":
-                final = merge_hori(final,characters["SPACE"])
-            case _:
-                final = merge_hori(final,characters[letter.upper()])
-    final.save("temp.png")
-    final.close()
-    recolor("temp.png","temp.png",color)
-    return Image.open("temp.png")
+    for string in interpret_string:
+        if str(int(string[0])) == string[0]: #checking if the first character is a number
+            current_color = TColor[int(string[0])]
+        for ind, letter in enumerate(string):
+            match letter:
+                case "+":
+                    final = merge_hori(final,recolor(characters["PLUS"][header], current_color))
+                    if ind == 0: #add separation from plus
+                        for _ in range(3): merge_hori(final,recolor(characters["SPACE"][header], current_color))
+                case "-":
+                    final = merge_hori(final,recolor(characters["MINUS"][header], current_color))
+                    if ind == 0: #ditto for minus
+                        for _ in range(3): merge_hori(final,recolor(characters["SPACE"][header], current_color))
+                case "(":
+                    final = merge_hori(final,recolor(characters["LEFT_BRACKET"][header], current_color))
+                case ")":
+                    final = merge_hori(final,recolor(characters["RIGHT_BRACKET"][header], current_color))
+                case " ":
+                    final = merge_hori(final,recolor(characters["SPACE"][header], current_color))
+                case _:
+                    final = merge_hori(final,recolor(characters[letter.upper()][header], current_color))
+    return final
 
 def merge_hori(im1, im2):
     w = im1.size[0] + im2.size[0]
@@ -60,28 +73,25 @@ def merge_vert(im1, im2):
     return im
 
 #TODO: Add WHITE color mode
-def recolor(filein: str, fileout: str, mode: TColor):
-    save_alpha = Image.open(filein).getchannel("A")
-    im = cv2.imread(filein)
-    hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV_FULL)
-    hchannel = hsv[:, :, 0]
+def recolor(img: Image.Image, mode: TColor):
+    save_alpha = img.getchannel("A")
+    image_hsl = img.convert("HSL")
+    h, s, l = image_hsl.split()
     match mode:
         case TColor.WHITE:
-            pass #don't know what to do here yet
+            l += 100
         case TColor.ORANGE:
-            hchannel = 12 + hchannel
+            h += 12
         case TColor.GREEN: 
-            hchannel = 52 + hchannel
+            h += 52
         case TColor.BLUE:
-            hchannel = 90 + hchannel
+            h += 90
         case TColor.RED:
-            hchannel = 0 + hchannel #do nothing, it is already red
-    hsv[:, :, 0] = hchannel
-    rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-    cv2.imwrite(fileout, rgb)
-    do_it = Image.open(fileout)
-    do_it.putalpha(save_alpha)
-    do_it.save(fileout)
+            h += 0 #do nothing, it is already red
+    image_hsl = Image.merge("HSL", (h, s, l))
+    resav_img = image_hsl.convert("RGBA")
+    resav_img.putalpha(save_alpha)
+    return resav_img
 
 #TODO: figure out removing temp.png
 if __name__ == "__main__":
@@ -90,11 +100,9 @@ if __name__ == "__main__":
     filename = argv[1]
     if not path.exists(filename):
         makedirs(filename)
-    strings = argv[2::2]
-    color = argv[3::2]
+    strings = argv[2:]
     for ind in range(len(strings)):
-        imgs.append(generate_image(strings[ind], TColor(int(color[ind]))))
-        #remove("temp.png")
+        imgs.append(generate_image(strings[ind], True if ind == 0 else False))
         filename += strings[ind]
     filename += ".png"
     comp_image = Image.new('RGBA', (0, 0))

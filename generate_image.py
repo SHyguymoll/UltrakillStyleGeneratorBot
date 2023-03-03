@@ -72,12 +72,12 @@ def generate_image(text_string: str, header: bool = False):
                     final = merge_hori(final,generate_character(characters["PLUS"][header], current_color))
                     if ind == 0: #add separation from plus
                         for _i in range(3):
-                            merge_hori(final,generate_character(characters["SPACE"][header], TColor.WHITE))
+                            final = merge_hori(final,generate_character(characters["SPACE"][header], TColor.WHITE))
                 case "-":
                     final = merge_hori(final,generate_character(characters["MINUS"][header], current_color))
                     if ind == 0: #ditto for minus
                         for _i in range(3):
-                            merge_hori(final,generate_character(characters["SPACE"][header], TColor.WHITE))
+                            final = merge_hori(final,generate_character(characters["SPACE"][header], TColor.WHITE))
                 case "(":
                     final = merge_hori(final,generate_character(characters["LEFT_BRACKET"][header], current_color))
                 case ")":

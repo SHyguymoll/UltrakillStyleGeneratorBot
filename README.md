@@ -5,17 +5,18 @@ This is a bot which adds commands to make images that look like Style bonuses fr
 # Requirements
 /images (source of characters)
 
-PIL (image stitching)
-
-opencv-python (image recoloring via HSV)
+PIL (image stitching, character generating)
 
 sys (command line args)
 
 enum (color enums)
 
-os (directories, removing temp files (IN THE FUTURE))
+os (generating directories)
 
 # How to use locally
-```python3 generate_image.py <outdir> <text> <color> [<text> <color>, ...]```
+```python3 generate_image.py <file out with local path> <text> [<text> , ...]```
 
-This will generate a transparent image with the texts and colors in question, named after the inputted text. Each block of text will be on its own line.
+`<text>`: a-z, A-Z, +, -, (, and ) are written. color can be specified using `_x`, where x is a number from 0 to 4 (currently). Number support will be added in the future.
+
+
+This will generate a transparent image with the texts and colors in question, named after the inputted text. Each block of text will be on its own line. The first block of text will be the header (ala Anarchic, Savage, etc.)

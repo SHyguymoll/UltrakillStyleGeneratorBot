@@ -34,7 +34,19 @@ def generate_image(text_string: str, header: bool = False):
     final = Image.new('RGBA', (0, 0))
     for string in interpret_string:
         if str(int(string[0])) == string[0]: #checking if the first character is a number
-            current_color = TColor[int(string[0])]
+            match int(string[0]):
+                case 0:
+                    current_color = TColor.WHITE
+                case 1:
+                    current_color = TColor.ORANGE
+                case 2:
+                    current_color = TColor.GREEN
+                case 3:
+                    current_color = TColor.BLUE
+                case 4:
+                    current_color = TColor.RED
+                case _: #invalid color index, fallback to white
+                    current_color = TColor.WHITE
         for ind, letter in enumerate(string):
             match letter:
                 case "+":
@@ -102,10 +114,10 @@ if __name__ == "__main__":
     strings = argv[2:]
     for ind in range(len(strings)):
         imgs.append(generate_image(strings[ind], True if ind == 0 else False))
-        filename += strings[ind]
     filename += ".png"
     comp_image = Image.new('RGBA', (0, 0))
     for img in imgs:
         comp_image = merge_vert(comp_image, img)
     comp_image.save(filename)
+    comp_image.close()
     

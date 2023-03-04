@@ -25,6 +25,7 @@ Colors:
 2. Green
 3. Blue
 4. Red
+5. Gold
 
 
 This will generate a transparent image with the texts and colors in question, named after the inputted text. Each block of text will be on its own line. The first block of text will be the header (ala Anarchic, Savage, etc.)

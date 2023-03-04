@@ -9,8 +9,9 @@ class TColor(Enum):
     GREEN = 2
     BLUE = 3
     RED = 4
+    GOLD = 5
 
-char_array = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","PLUS","MINUS","LEFT_BRACKET","RIGHT_BRACKET","SPACE"]
+char_array = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6","7","8","9","0","PLUS","MINUS","LEFT_BRACKET","RIGHT_BRACKET","SPACE"]
 
 characters = {}
 
@@ -40,6 +41,8 @@ def pick_color(color: TColor):
             return (39, 255, 236, 255)
         case TColor.RED:
             return (255, 0, 0, 255)
+        case TColor.GOLD:
+            return (243, 211, 0)
 
 def generate_character(character_mask: Image.Image, color: TColor) -> Image.Image:
     char = Image.new("RGBA", character_mask.size, pick_color(color))
@@ -65,6 +68,8 @@ def generate_image(text_string: str, header: bool = False):
                     current_color = TColor.BLUE
                 case 4:
                     current_color = TColor.RED
+                case 5:
+                    current_color = TColor.GOLD
                 case _: #invalid color index, fallback to white
                     current_color = TColor.WHITE
             string = string[1:] #remove the number as we've used it up

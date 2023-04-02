@@ -14,7 +14,7 @@ tree = discord.app_commands.CommandTree(client)
 async def first_command(interaction: discord.Interaction, name: str, string: str):
     make_img = generate_image.full_image(string.split("|"))
 
-    act_name = "out_discord/" + name + ".png"
+    act_name = name + ".png"
     text = str("Text: " + name)
     to_use = BytesIO()
     make_img.save(to_use, format='PNG')

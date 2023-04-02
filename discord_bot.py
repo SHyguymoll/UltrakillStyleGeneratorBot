@@ -1,3 +1,4 @@
+import os
 import generate_image
 import discord
 
@@ -8,10 +9,16 @@ client = discord.Client(intents=intents)
 
 tree = discord.app_commands.CommandTree(client)
 
-@tree.command(name = "generate_text", description = "Characters Supported: a-Z, +, -, (, )") #Add the guild ids in which the slash command will appear. If it should be in all, remove the argument, but note that it will take some time (up to an hour) to register the command if it's for all guilds.
-async def first_command(interaction, string:str, color:str):
-    generate_image.generate_image(string, generate_image.TColor(int(color))).save(string)
-    await interaction.response.send_message("Text: " + string, embed=open(string))
+@tree.command(name = "generate_text", description = "Characters Supported: a-Z, 0-9, +, -, (, )\nSeparate strings with |") #Add the guild ids in which the slash command will appear. If it should be in all, remove the argument, but note that it will take some time (up to an hour) to register the command if it's for all guilds.
+async def first_command(interaction: discord.Interaction, name: str, string: str):
+    to_send = generate_image.full_image(string.split("|"))
+    act_name = name + ".png"
+    to_send.save(act_name)
+    text = str("Text: " + name)
+    file = discord.File(fp=open(act_name, mode="rb"),filename=act_name)
+    await interaction.response.send_message(content=text, file=file)
+    file.close()
+    os.remove(act_name)
 
 @client.event
 async def on_ready():

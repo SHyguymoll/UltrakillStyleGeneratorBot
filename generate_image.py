@@ -49,7 +49,7 @@ def generate_character(character_mask: Image.Image, color: TColor) -> Image.Imag
     char.putalpha(character_mask)
     return char
 
-def generate_image(text_string: str, header: bool = False):
+def generate_image(text_string: str, header: bool = False) -> Image.Image:
     interpret_string = text_string.split("_")
     current_color = TColor.RED
     final = Image.new('RGBA', (0, 0))
@@ -95,7 +95,7 @@ def generate_image(text_string: str, header: bool = False):
                     final = merge_hori(final,generate_character(characters[letter.upper()][header], current_color))
     return final
 
-def merge_hori(im1, im2):
+def merge_hori(im1: Image.Image, im2: Image.Image) -> Image.Image:
     w = im1.size[0] + im2.size[0]
     h = max(im1.size[1], im2.size[1])
     im = Image.new("RGBA", (w, h))
@@ -103,7 +103,7 @@ def merge_hori(im1, im2):
     im.paste(im2, (im1.size[0], 0))
     return im
 
-def merge_vert(im1, im2):
+def merge_vert(im1: Image.Image, im2: Image.Image) -> Image.Image:
     w = max(im1.size[0], im2.size[0])
     h = im1.size[1] + im2.size[1]
     im = Image.new("RGBA", (w, h))
@@ -111,19 +111,21 @@ def merge_vert(im1, im2):
     im.paste(im2, (0, im1.size[1]))
     return im
 
+def full_image(str: list) -> Image.Image:
+    imgs = []
+    for ind in range(len(str)):
+        imgs.append(generate_image(str[ind], True if ind != 0 else False))
+    comp_image = Image.new('RGBA', (0, 0))
+    for img in imgs:
+        comp_image = merge_vert(comp_image, img)
+    return comp_image
+
 if __name__ == "__main__":
     load_characters("images/")
-    imgs = []
     filename = argv[1]
     dir = filename[::-1].split("/", 1)[1][::-1] + "/" #this returns just the leading path to the actual file
     if not path.exists(dir):
         makedirs(dir)
-    strings = argv[2:]
-    for ind in range(len(strings)):
-        imgs.append(generate_image(strings[ind], True if ind != 0 else False))
-    comp_image = Image.new('RGBA', (0, 0))
-    for img in imgs:
-        comp_image = merge_vert(comp_image, img)
+    comp_image = full_image(argv[2:])
     comp_image.save(filename)
     comp_image.close()
-    

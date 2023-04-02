@@ -28,4 +28,7 @@ Colors:
 5. Gold
 
 
-This will generate a transparent image with the texts and colors in question, named after the inputted text. Each block of text will be on its own line. The first block of text will be the header (ala Anarchic, Savage, etc.)
+This will generate a transparent image with the texts and colors in question, named after the inputted text. Each block of text will be on its own line. The first block of text will be the style ranking (ala Anarchic, Savage, etc.)
+
+# How to use on discord
+[Add Ultrakill Style Generator#1983](https://discord.com/api/oauth2/authorize?client_id=939773647638392883&permissions=277025442816&scope=bot)

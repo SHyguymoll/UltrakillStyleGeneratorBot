@@ -34,7 +34,7 @@ string: a specially formatted string which will be used to make the image.
 This bot supports a-Z, 0-9, _, -, (, and ).
 Separate strings with |.
 Start each line with a number from 0-5 to define its color. You can change the color on the fly with _x, where x is a number from 0-5.
-Check the github for the actual colors from the numbers.
+Check the github (https://github.com/SHyguymoll/UltrakillStyleGeneratorBot/) for the actual colors from the numbers.
 
 Example of proper usage:
 `/generate_text Interesting Style! 5ULTRAKILL|2+are you|3tell_0ing me|5a shrimp|3fried this rice`""")

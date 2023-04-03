@@ -13,6 +13,7 @@ tree = discord.app_commands.CommandTree(client)
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |"
               ) #Add the guild ids in which the slash command will appear. If it should be in all, remove the argument, but note that it will take some time (up to an hour) to register the command if it's for all guilds.
 async def generate(interaction: discord.Interaction, name: str, string: str):
+    print(f"attempting to create {name}, with string {string}")
     make_img = generate_image.full_image(string.split("|"))
 
     act_name = name + ".png"
@@ -22,6 +23,7 @@ async def generate(interaction: discord.Interaction, name: str, string: str):
     to_use.seek(0)
 
     file = discord.File(fp=to_use,filename=act_name)
+    print(f"printing {name}")
     await interaction.response.send_message(content=text, file=file)
     file.close()
 

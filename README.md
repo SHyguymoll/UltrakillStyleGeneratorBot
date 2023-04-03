@@ -1,6 +1,6 @@
 # UltrakillStyleGeneratorBot
 
-This is a bot which adds commands to make images that look like Style bonuses from the game [Ultrakill.](devilmayquake.com)
+This is a bot which adds commands to make images that look like Style bonuses from the game [Ultrakill.](https://devilmayquake.com)
 
 # Requirements
 /images (source of characters)

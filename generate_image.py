@@ -56,7 +56,7 @@ def generate_image(text_string: str, header: bool = False) -> Image.Image:
     for string in interpret_string:
         if len(string) == 0: #ignore empty splits
             continue
-        if str(int(string[0])) == string[0]: #checking if the first character is a number
+        if string[0].isdigit: #checking if the first character is a number
             match int(string[0]):
                 case 0:
                     current_color = TColor.WHITE

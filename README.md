@@ -16,7 +16,7 @@ os (generating directories)
 # How to use locally
 ```python3 generate_image.py <file out with local path> <text> [<text> , ...]```
 
-`<text>`: a-z, A-Z, +, -, (, and ) are written. color can be specified using `_x`, where x is a number from 0 to 4 (currently). Number support will be added in the future.
+`<text>`: a-Z, 0-9, +, -, (, and ) are written. color can be specified using `_x`, where x is a number from 0 to 5 (currently).
 
 Colors:
 

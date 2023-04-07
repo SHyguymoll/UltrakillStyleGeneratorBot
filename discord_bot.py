@@ -1,5 +1,4 @@
-import os
-import generate_image
+from generate_image import *
 import discord
 from io import BytesIO
 
@@ -15,7 +14,6 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
     PILimg.save(BytesObject, format='PNG')
     BytesObject.seek(0)
     return BytesObject
-    pass
 
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
 async def generate(interaction: discord.Interaction, name: str, string: str):

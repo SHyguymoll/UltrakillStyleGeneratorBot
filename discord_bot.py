@@ -17,12 +17,12 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
 
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
 async def generate(interaction: discord.Interaction, name: str, string: str):
-    print(f"attempting to create {name}, with string {string}")
+    #print(f"attempting to create {name}, with string {string}")
     final_image = convertPILimgToBytes(full_image(string.split("|")))
     act_name = name + ".png"
     text = str("Text: " + name)
     file = discord.File(fp=final_image,filename=act_name)
-    print(f"printing {name}")
+    #print(f"printing {name}")
     await interaction.response.send_message(content=text, file=file)
     file.close()
 
@@ -45,16 +45,16 @@ Example of proper usage:
 async def on_ready():
     load_characters("images/")
     await tree.sync()
-    print(f'We have logged in as {client.user}')
+    print(f'We have logged in as {client.user}, it is safe to background.')
     
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
+#@client.event
+#async def on_message(message):
+#    if message.author == client.user:
+#        return
+#
+#    if message.content.startswith('$hello'):
+#        await message.channel.send('Hello!')
 
 
 def read_token() -> str:

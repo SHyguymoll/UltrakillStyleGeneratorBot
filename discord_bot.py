@@ -18,7 +18,7 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
 async def generate(interaction: discord.Interaction, name: str, string: str):
     print(f"attempting to create {name}, with string {string}")
-    final_image = convertPILimgToBytes(generate_image.full_image(string.split("|")))
+    final_image = convertPILimgToBytes(full_image(string.split("|")))
     act_name = name + ".png"
     text = str("Text: " + name)
     file = discord.File(fp=final_image,filename=act_name)
@@ -43,7 +43,7 @@ Example of proper usage:
 
 @client.event
 async def on_ready():
-    generate_image.load_characters("images/")
+    load_characters("images/")
     await tree.sync()
     print(f'We have logged in as {client.user}')
     

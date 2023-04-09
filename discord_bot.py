@@ -30,7 +30,7 @@ async def help(interaction: discord.Interaction):
 How to use this bot:
 name: what the image will be titled
 string: a specially formatted string which will be used to make the image.
-This bot supports a-Z, 0-9, _, -, (, and ).
+This bot supports a-Z, 0-9, +, -, (, and ).
 Separate strings with |.
 Start each line with a number from 0-5 to define its color. You can change the color on the fly with _x, where x is a number from 0-5.
 Check the github (https://github.com/SHyguymoll/UltrakillStyleGeneratorBot/) for the actual colors from the numbers.

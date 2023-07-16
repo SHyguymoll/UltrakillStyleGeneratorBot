@@ -20,7 +20,7 @@ def pick_color(color: TColor):
     elif color == TColor.RED:
         return (255, 0, 0, 255)
     elif color == TColor.GOLD:
-        return (243, 211, 0)
+        return (243, 211, 0, 255)
     else: #another fallback because why not
         return (255, 255, 255, 255)
 

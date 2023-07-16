@@ -1,48 +1,59 @@
-from PIL import Image
+from PIL import Image, ImageColor, ImageFont, ImageDraw
 from sys import argv
 from os import makedirs, path
 from select_logic import *
 
 #TODO: Look into text generation https://plainenglish.io/blog/generating-text-on-image-with-python-eefe4430fe77
 
-char_array = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6","7","8","9","0","PLUS","MINUS","LEFT_BRACKET","RIGHT_BRACKET","SPACE"]
-
-characters = {}
-
-def load_characters(dir: str):
-    for letter in char_array:
-        characters[letter] = []
-        try:
-            characters[letter].append(Image.open(dir + "header/" + letter + ".png").getchannel("A"))
-        except IOError:
-            print("could not load header character " + letter)
-            characters[letter].append(Image.new('RGBA', (0, 0)))
-        try:
-            characters[letter].append(Image.open(dir + "single/" + letter + ".png").getchannel("A"))
-        except IOError:
-            print("could not load single character " + letter)
-            characters[letter].append(Image.new('RGBA', (0, 0)))
+def load_characters(lower_fontname: str, upper_fontname: str):
+    global font_style, font_header
+    font_style = ImageFont.truetype(lower_fontname, 28)
+    font_header = ImageFont.truetype(upper_fontname, 72)
 
 def generate_character(character_mask: Image.Image, color: TColor) -> Image.Image:
     char = Image.new("RGBA", character_mask.size, pick_color(color))
     char.putalpha(character_mask)
     return char
 
+NO_COLOR = ImageColor.getrgb("#FFFFFF00")
+
+def write_text(text: str, is_header: bool, color: TColor) -> Image.Image:
+    if is_header:
+        header_bbox = font_header.getbbox(text=text, anchor="ld")
+        img_size = (header_bbox[2]-header_bbox[0], header_bbox[3]-header_bbox[1])
+        img = Image.new('RGBA', img_size, NO_COLOR)
+        draw = ImageDraw.Draw(img)
+        draw.text(xy=(0, img_size[1]), text=text, fill=pick_color(color), font=font_header, anchor="ld")
+        return img
+    else:
+        style_bbox = font_style.getbbox(text=text, anchor="ld")
+        img_size = (style_bbox[2]-style_bbox[0], style_bbox[3]-style_bbox[1])
+        img = Image.new('RGBA', img_size, NO_COLOR)
+        draw = ImageDraw.Draw(img)
+        #draw.fontmode = 1
+        draw.text(xy=(0, img_size[1]), text=text, fill=pick_color(color), font=font_style, anchor="ld")
+        return img
+
 def generate_image(text_string: str, header: bool = False) -> Image.Image:
     interpret_string = text_string.split("_")
     current_color = TColor.WHITE
     final = Image.new('RGBA', (0, 0))
-    for string, ind in enumerate(interpret_string):
+    for ind, string in enumerate(interpret_string):
         if len(string) == 0: #ignore empty splits
             continue
-        if ind == 0: #header, don't make any changes to the string
-            pass
         if string[0].isdigit: #checking if the first character is a number
             current_color = select_color(int(string[0]))
             string = string[1:] #remove the number as we've used it up
-        for letter in string:
-            for char in select_character(characters, letter, header): #handles + and - which come with spaces
-                final = merge_hori(final, generate_character(char,current_color))
+        if len(string) == 0: #after removal, the string might be empty, so return an empty image
+            continue
+        if header: #header, don't make any changes to the string
+            final = merge_hori(final, write_text(string, True, current_color))
+        else:
+            if ind == 0 and string[0] == "+": #pluses come with spaces when at the start of the line
+                string = "+   " + string[1:]
+            if ind == 0 and string[0] == "-": #same with minuses
+                string = "-   " + string[1:]
+            final = merge_hori(final, write_text(string, False, current_color))
     return final
 
 def merge_hori(im1: Image.Image, im2: Image.Image) -> Image.Image:
@@ -64,14 +75,14 @@ def merge_vert(im1: Image.Image, im2: Image.Image) -> Image.Image:
 def full_image(str: list) -> Image.Image:
     imgs = []
     for ind in range(len(str)):
-        imgs.append(generate_image(str[ind], True if ind != 0 else False))
+        imgs.append(generate_image(str[ind], True if ind == 0 else False))
     comp_image = Image.new('RGBA', (0, 0))
     for img in imgs:
         comp_image = merge_vert(comp_image, img)
     return comp_image
 
 if __name__ == "__main__":
-    load_characters("images/")
+    load_characters("VCR_OSD_MONO_1.001.ttf", "Akkordeon-Eight.ttf")
     filename = argv[1]
     dir = filename[::-1].split("/", 1)[1][::-1] + "/" #this returns just the leading path to the actual file
     if not path.exists(dir):

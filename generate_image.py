@@ -3,6 +3,8 @@ from sys import argv
 from os import makedirs, path
 from select_logic import *
 
+#TODO: Look into text generation https://plainenglish.io/blog/generating-text-on-image-with-python-eefe4430fe77
+
 char_array = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6","7","8","9","0","PLUS","MINUS","LEFT_BRACKET","RIGHT_BRACKET","SPACE"]
 
 characters = {}
@@ -28,11 +30,13 @@ def generate_character(character_mask: Image.Image, color: TColor) -> Image.Imag
 
 def generate_image(text_string: str, header: bool = False) -> Image.Image:
     interpret_string = text_string.split("_")
-    current_color = TColor.RED
+    current_color = TColor.WHITE
     final = Image.new('RGBA', (0, 0))
-    for string in interpret_string:
+    for string, ind in enumerate(interpret_string):
         if len(string) == 0: #ignore empty splits
             continue
+        if ind == 0: #header, don't make any changes to the string
+            pass
         if string[0].isdigit: #checking if the first character is a number
             current_color = select_color(int(string[0]))
             string = string[1:] #remove the number as we've used it up

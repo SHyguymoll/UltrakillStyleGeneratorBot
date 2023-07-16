@@ -82,7 +82,7 @@ def full_image(str: list) -> Image.Image:
     return comp_image
 
 if __name__ == "__main__":
-    load_characters("VCR_OSD_MONO_1.001.ttf", "Akkordeon-Eight.ttf")
+    load_characters("fonts/VCR_OSD_MONO_1.001.ttf", "fonts/Akkordeon-Eight.ttf")
     filename = argv[1]
     dir = filename[::-1].split("/", 1)[1][::-1] + "/" #this returns just the leading path to the actual file
     if not path.exists(dir):

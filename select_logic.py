@@ -61,16 +61,15 @@ def select_color(val: int):
             return TColor.WHITE
 
 def select_character(char_dict: dict, char: str, head: bool): #needs to return array
-    match char:
-        case "+":
-            return [char_dict["PLUS"][head], char_dict["SPACE"][head], char_dict["SPACE"][head], char_dict["SPACE"][head]]
-        case "-":
-            return [char_dict["MINUS"][head], char_dict["SPACE"][head], char_dict["SPACE"][head], char_dict["SPACE"][head]]
-        case "(":
-            return [char_dict["LEFT_BRACKET"][head]]
-        case ")":
-            return [char_dict["RIGHT_BRACKET"][head]]
-        case " ":
-            return [char_dict["SPACE"][head]]
-        case _:
-            return [char_dict[char.upper()][head]]
+    if char == "+":
+        return [char_dict["PLUS"][head], char_dict["SPACE"][head], char_dict["SPACE"][head], char_dict["SPACE"][head]]
+    elif char == "-":
+        return [char_dict["MINUS"][head], char_dict["SPACE"][head], char_dict["SPACE"][head], char_dict["SPACE"][head]]
+    elif char == "(":
+        return [char_dict["LEFT_BRACKET"][head]]
+    elif char == ")":
+        return [char_dict["RIGHT_BRACKET"][head]]
+    elif char == " ":
+        return [char_dict["SPACE"][head]]
+    else:
+        return [char_dict[char.upper()][head]]

@@ -26,13 +26,14 @@ Colors:
 3. Blue
 4. Red
 5. Gold
+6. Custom (input a 6 symbol hex code (without the leading #) after the 6 to specify the color)
 
 
 This will generate a transparent image with the texts and colors in question, named after the inputted text. Each block of text will be on its own line. The first block of text will be the style ranking (ala Anarchic, Savage, etc.)
 
 Example:
 
-```python3 generate_image.py Interesting_Style.png "5ULTRAKILL" "2+are you" "3tell_0ing me" "5a shrimp" "3fried this rice"```
+```python3 generate_image.py "out/Interesting_Style.png" "5ULTRAKILL" "2+are you" "3tell_0ing me" "689596ba shrimp" "3fried this rice"```
 
 ![](https://github.com/SHyguymoll/UltrakillStyleGeneratorBot/blob/main/Interesting_Style.png?raw=true)
 

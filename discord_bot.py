@@ -38,7 +38,7 @@ When specifying a custom color, the next 6 characters from the number will be tr
 Check the github (https://github.com/SHyguymoll/UltrakillStyleGeneratorBot/) for more info.
 
 Example of proper usage:
-`/generate_text Interesting Style! 5ULTRAKILL|2+are you|3tell_0ing me|5a shrimp|3fried this rice`""")
+`/generate_text Interesting Style! 5ULTRAKILL|2+are you|3tell_0ing me|689596ba shrimp|3fried this rice`""")
 
 
 @client.event

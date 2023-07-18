@@ -33,7 +33,7 @@ def generate_image(text_string: str, header: bool = False) -> Image.Image:
     for string in interpret_string:
         if len(string) == 0: #ignore empty splits
             continue
-        if string[0].isdigit: #checking if the first character is a number
+        if string[0].isdigit(): #checking if the first character is a number
             current_color = select_color(int(string[0]))
             string = string[1:] #remove the number as we've used it up
         for letter in string:

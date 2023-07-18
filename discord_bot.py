@@ -32,8 +32,10 @@ name: what the image will be titled
 string: a specially formatted string which will be used to make the image.
 This bot supports a-Z, 0-9, +, -, (, and ).
 Separate strings with |.
-Start each line with a number from 0-5 to define its color. You can change the color on the fly with _x, where x is a number from 0-5.
-Check the github (https://github.com/SHyguymoll/UltrakillStyleGeneratorBot/) for the actual colors from the numbers.
+Start each line with a number from 0-6 to define its color. You can change the color on the fly with _x, where x is a number from 0-6.
+The colors, in order, are White, Orange, Green, Blue, Red, Gold, and Custom.
+When specifying a custom color, the next 6 characters from the number will be treated as a hex code, from 000000 to FFFFFF.
+Check the github (https://github.com/SHyguymoll/UltrakillStyleGeneratorBot/) for more info.
 
 Example of proper usage:
 `/generate_text Interesting Style! 5ULTRAKILL|2+are you|3tell_0ing me|5a shrimp|3fried this rice`""")

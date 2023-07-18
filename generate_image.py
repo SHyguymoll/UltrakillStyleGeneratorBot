@@ -3,8 +3,6 @@ from sys import argv
 from os import makedirs, path
 from select_logic import *
 
-#TODO: Look into text generation https://plainenglish.io/blog/generating-text-on-image-with-python-eefe4430fe77
-
 def load_characters(lower_fontname: str, upper_fontname: str):
     global font_style, font_header
     font_style = ImageFont.truetype(lower_fontname, 28)
@@ -23,15 +21,15 @@ def write_text(text: str, is_header: bool, color: TColor) -> Image.Image:
         img_size = (header_bbox[2]-header_bbox[0], header_bbox[3]-header_bbox[1])
         img = Image.new('RGBA', img_size, NO_COLOR)
         draw = ImageDraw.Draw(img)
-        draw.text(xy=(0, img_size[1]), text=text, fill=pick_color(color), font=font_header, anchor="ld")
+        draw.text(xy=(0, img_size[1]), text=text, fill=pick_color(color), anchor="ld")
         return img
     else:
         style_bbox = font_style.getbbox(text=text, anchor="ld")
         img_size = (style_bbox[2]-style_bbox[0], style_bbox[3]-style_bbox[1])
         img = Image.new('RGBA', img_size, NO_COLOR)
         draw = ImageDraw.Draw(img)
-        #draw.fontmode = 1
-        draw.text(xy=(0, img_size[1]), text=text, fill=pick_color(color), font=font_style, anchor="ld")
+        draw.fontmode = 1
+        draw.text(xy=(0, img_size[1]), text=text, fill=pick_color(color), anchor="ld")
         return img
 
 def generate_image(text_string: str, header: bool = False) -> Image.Image:
@@ -41,7 +39,7 @@ def generate_image(text_string: str, header: bool = False) -> Image.Image:
     for ind, string in enumerate(interpret_string):
         if len(string) == 0: #ignore empty splits
             continue
-        if string[0].isdigit: #checking if the first character is a number
+        if string[0].isdigit(): #checking if the first character is a number
             current_color = select_color(int(string[0]))
             string = string[1:] #remove the number as we've used it up
         if len(string) == 0: #after removal, the string might be empty, so return an empty image

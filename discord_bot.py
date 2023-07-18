@@ -16,12 +16,15 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
     return BytesObject
 
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
-async def generate(interaction: discord.Interaction, name: str, string: str):
+async def generate(interaction: discord.Interaction, name: str, string: str, silent: bool):
     final_image = convertPILimgToBytes(full_image(string.split("|")))
     act_name = name + ".png"
     text = str("Text: " + name)
     file = discord.File(fp=final_image,filename=act_name)
-    await interaction.response.send_message(content=text, file=file)
+    if not silent:
+        await interaction.response.send_message(content=text, file=file)
+    else:
+        await interaction.response.send_message(file=file)
     file.close()
 
 @tree.command(name="help", description="shows help")

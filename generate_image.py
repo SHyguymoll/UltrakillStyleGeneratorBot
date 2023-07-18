@@ -21,14 +21,15 @@ def load_characters(dir: str):
             print("could not load single character " + letter)
             characters[letter].append(Image.new('RGBA', (0, 0)))
 
-def generate_character(character_mask: Image.Image, color: TColor) -> Image.Image:
-    char = Image.new("RGBA", character_mask.size, pick_color(color))
+def generate_character(character_mask: Image.Image, color: tuple[int]) -> Image.Image:
+    char = Image.new("RGBA", character_mask.size, color)
     char.putalpha(character_mask)
     return char
 
 def generate_image(text_string: str, header: bool = False) -> Image.Image:
     interpret_string = text_string.split("_")
-    current_color = TColor.RED
+    current_color = TColor.WHITE
+    custom_color = (255, 255, 255, 255)
     final = Image.new('RGBA', (0, 0))
     for string in interpret_string:
         if len(string) == 0: #ignore empty splits
@@ -36,9 +37,15 @@ def generate_image(text_string: str, header: bool = False) -> Image.Image:
         if string[0].isdigit(): #checking if the first character is a number
             current_color = select_color(int(string[0]))
             string = string[1:] #remove the number as we've used it up
+            if current_color == TColor.CUSTOM:
+                custom_color = pick_color(TColor.CUSTOM, string[0:6])
+                string = string[6:]
         for letter in string:
             for char in select_character(characters, letter, header): #handles + and - which come with spaces
-                final = merge_hori(final, generate_character(char,current_color))
+                if current_color == TColor.CUSTOM:
+                    final = merge_hori(final, generate_character(char, custom_color))
+                else:
+                    final = merge_hori(final, generate_character(char, pick_color(current_color, char)))
     return final
 
 def merge_hori(im1: Image.Image, im2: Image.Image) -> Image.Image:

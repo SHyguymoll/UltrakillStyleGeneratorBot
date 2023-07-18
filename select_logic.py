@@ -7,8 +7,15 @@ class TColor(Enum):
     BLUE = 3
     RED = 4
     GOLD = 5
+    CUSTOM = 6
 
-def pick_color(color: TColor):
+def ishex(string: str) -> bool:
+    for charac in string: #safeguard against invalid hex strings
+        if not charac.isdigit() and not charac.upper() in ["A", "B", "C", "D", "E", "F"]:
+            return False
+    return True
+
+def pick_color(color: TColor, string: str):
     if color == TColor.WHITE:
         return (255, 255, 255, 255)
     elif color == TColor.ORANGE:
@@ -21,8 +28,19 @@ def pick_color(color: TColor):
         return (255, 0, 0, 255)
     elif color == TColor.GOLD:
         return (243, 211, 0, 255)
-    else: #another fallback because why not
-        return (255, 255, 255, 255)
+    elif color == TColor.CUSTOM:
+        if len(string) < 6: #hex codes must be 6 symbols long
+            return (255, 255, 255, 255)
+        if not ishex(string): #safeguard against invalid hex strings
+            return (255, 255, 255, 255)
+        return (
+            int(string[0:2], base=16),
+            int(string[2:4], base=16),
+            int(string[4:6], base=16),
+            255
+        )
+    #another fallback because why not
+    return (255, 255, 255, 255)
 
 def select_color(val: int):
     if val == 0:
@@ -37,8 +55,10 @@ def select_color(val: int):
         return TColor.RED
     elif val == 5:
         return TColor.GOLD
-    else: #invalid color index, fallback to white
-        return TColor.WHITE
+    elif val == 6:
+        return TColor.CUSTOM
+    #invalid color index, fallback to white
+    return TColor.WHITE
 
 def select_character(char_dict: dict, char: str, head: bool): #needs to return array
     if char == "+":

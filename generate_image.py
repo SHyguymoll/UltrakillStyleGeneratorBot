@@ -37,6 +37,7 @@ def write_text(text: str, is_header: bool, color: tuple[int]) -> Image.Image:
 def generate_image(text_string: str, header: bool = False) -> Image.Image:
     interpret_string = text_string.split("_")
     current_color = TColor.WHITE
+    custom_color = (255, 255, 255, 255)
     final = Image.new('RGBA', (0, 0))
     for ind, string in enumerate(interpret_string):
         if len(string) == 0: #ignore empty splits
@@ -44,16 +45,25 @@ def generate_image(text_string: str, header: bool = False) -> Image.Image:
         if string[0].isdigit(): #checking if the first character is a number
             current_color = select_color(int(string[0]))
             string = string[1:] #remove the number as we've used it up
-        if len(string) == 0: #after removal, the string might be empty, so return an empty image
+            if current_color == TColor.CUSTOM: #custom color check for 6
+                custom_color = pick_color(current_color, string[0:6])
+                string = string[6:]
+        if len(string) == 0: #after removal, the string might be empty, so make no changes
             continue
         if header: #header, don't make any changes to the string
-            final = merge_hori(final, write_text(string, True, pick_color(current_color)))
+            if current_color == TColor.CUSTOM:
+                final = merge_hori(final, write_text(string, True, custom_color))
+            else:
+                final = merge_hori(final, write_text(string, True, pick_color(current_color, string)))
         else:
             if ind == 0 and string[0] == "+": #pluses come with spaces when at the start of the line
                 string = "+   " + string[1:]
             if ind == 0 and string[0] == "-": #same with minuses
                 string = "-   " + string[1:]
-            final = merge_hori(final, write_text(string, False, pick_color(current_color)))
+            if current_color == TColor.CUSTOM:
+                final = merge_hori(final, write_text(string, False, custom_color))
+            else:
+                final = merge_hori(final, write_text(string, False, pick_color(current_color, string)))
     return final
 
 def merge_hori(im1: Image.Image, im2: Image.Image) -> Image.Image:

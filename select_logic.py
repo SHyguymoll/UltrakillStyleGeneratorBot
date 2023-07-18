@@ -7,8 +7,15 @@ class TColor(Enum):
     BLUE = 3
     RED = 4
     GOLD = 5
+    CUSTOM = 6
 
-def pick_color(color: TColor):
+def ishex(string: str) -> bool:
+    for charac in string: #safeguard against invalid hex strings
+        if not charac.isdigit() and not charac.upper() in ["A", "B", "C", "D", "E", "F"]:
+            return False
+    return True
+
+def pick_color(color: TColor, string: str):
     match color:
         case TColor.WHITE:
             return (255, 255, 255, 255)
@@ -22,6 +29,17 @@ def pick_color(color: TColor):
             return (255, 0, 0, 255)
         case TColor.GOLD:
             return (243, 211, 0)
+        case TColor.CUSTOM:
+            if len(string) < 6: #hex codes must be 6 symbols long
+                return (255, 255, 255, 255)
+            if not ishex(string): #safeguard against invalid hex strings
+                return (255, 255, 255, 255)
+            return (
+                int(string[0:2], base=16),
+                int(string[2:4], base=16),
+                int(string[4:6], base=16),
+                255
+            )
 
 def select_color(val: int):
     match val:
@@ -37,6 +55,8 @@ def select_color(val: int):
             return TColor.RED
         case 5:
             return TColor.GOLD
+        case 6:
+            return TColor.CUSTOM
         case _: #invalid color index, fallback to white
             return TColor.WHITE
 

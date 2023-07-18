@@ -42,6 +42,6 @@ Example:
 
 Example (note: bot needs to be online for this to work):
 
-```/generate_text name:Interesting Style! string:5ULTRAKILL|2+are you|3tell_0ing me|5a shrimp|3fried this rice```
+```/generate_text name:Interesting Style! string:5ULTRAKILL|2+are you|3tell_0ing me|689596ba shrimp|3fried this rice```
 
 This will make the same image as running it locally, but as an embed on discord.

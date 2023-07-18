@@ -16,17 +16,20 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
     return BytesObject
 
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
-async def generate(interaction: discord.Interaction, name: str, string: str):
+async def generate(interaction: discord.Interaction, name: str, string: str, silent: bool):
     final_image = convertPILimgToBytes(full_image(string.split("|")))
     act_name = name + ".png"
     text = str("Text: " + name)
     file = discord.File(fp=final_image,filename=act_name)
-    await interaction.response.send_message(content=text, file=file)
+    if not silent:
+        await interaction.response.send_message(content=text, file=file)
+    else:
+        await interaction.response.send_message(file=file)
     file.close()
 
 @tree.command(name="help", description="shows help")
 async def help(interaction: discord.Interaction):
-    await interaction.response.send_message(content="""
+    await interaction.response.send_message(ephemeral=True, content="""
 How to use this bot:
 name: what the image will be titled
 string: a specially formatted string which will be used to make the image.

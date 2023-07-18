@@ -47,7 +47,6 @@ async def on_ready():
     await tree.sync()
     print(f'We have logged in as {client.user}, it is safe to background')
 
-
 def read_token() -> str:
     with open("token.txt") as f:
         return f.readline()

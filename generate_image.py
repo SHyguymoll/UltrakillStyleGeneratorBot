@@ -73,5 +73,8 @@ if __name__ == "__main__":
     if not path.exists(dir):
         makedirs(dir)
     comp_image = full_image(argv[2:])
-    comp_image.save(filename)
+    comp_image.show()
+    option = input("save?")
+    if option.lower() in ["y", "yes"]:
+        comp_image.save(filename)
     comp_image.close()

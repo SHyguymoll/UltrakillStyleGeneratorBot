@@ -5,11 +5,12 @@ from select_logic import *
 
 STYLE_SIZE = 28
 HEADER_SIZE = 72
+QUALITY_MULTIPLIER = 3
 
 def load_characters(lower_fontname: str, upper_fontname: str):
     global font_style, font_header
-    font_style = ImageFont.truetype(lower_fontname, STYLE_SIZE * 3)
-    font_header = ImageFont.truetype(upper_fontname, HEADER_SIZE * 3)
+    font_style = ImageFont.truetype(lower_fontname, STYLE_SIZE * QUALITY_MULTIPLIER)
+    font_header = ImageFont.truetype(upper_fontname, HEADER_SIZE * QUALITY_MULTIPLIER)
 
 def generate_character(character_mask: Image.Image, color: TColor) -> Image.Image:
     char = Image.new("RGBA", character_mask.size, pick_color(color))
@@ -18,21 +19,28 @@ def generate_character(character_mask: Image.Image, color: TColor) -> Image.Imag
 
 NO_COLOR = ImageColor.getrgb("#FFFFFF00")
 
+def get_text_dimensions(text_string: str, font: ImageFont.FreeTypeFont):
+    # https://stackoverflow.com/a/46220683/9263761
+    ascent, descent = font.getmetrics()
+
+    text_width = font.getmask(text_string).getbbox()[2]
+    text_height = font.getmask(text_string).getbbox()[3] + descent
+
+    return (text_width, text_height)
+
 def write_text(text: str, is_header: bool, color: tuple[int]) -> Image.Image:
     if is_header:
-        header_bbox = font_header.getbbox(text=text, anchor="ld")
-        img_size = (header_bbox[2]-header_bbox[0], header_bbox[3]-header_bbox[1])
+        img_size = get_text_dimensions(text, font_header)
         img = Image.new('RGBA', img_size, NO_COLOR)
         draw = ImageDraw.Draw(img)
         draw.text(xy=(0, img_size[1]), text=text, font=font_header, fill=color, anchor="ld")
-        return img.resize((round(img.size[0] / 3), round(img.size[1] / 3)), Image.Resampling.BILINEAR)
+        return img.resize((round(img.size[0] / QUALITY_MULTIPLIER), round(img.size[1] / QUALITY_MULTIPLIER)), Image.Resampling.BILINEAR)
     else:
-        style_bbox = font_style.getbbox(text=text, anchor="ld")
-        img_size = (style_bbox[2]-style_bbox[0], style_bbox[3]-style_bbox[1])
+        img_size = get_text_dimensions(text, font_style)
         img = Image.new('RGBA', img_size, NO_COLOR)
         draw = ImageDraw.Draw(img)
         draw.text(xy=(0, img_size[1]), text=text, font=font_style, fill=color, anchor="ld")
-        return img.resize((round(img.size[0] / 3), round(img.size[1] / 3)), Image.Resampling.NEAREST)
+        return img.resize((round(img.size[0] / QUALITY_MULTIPLIER), round(img.size[1] / QUALITY_MULTIPLIER)), Image.Resampling.NEAREST)
 
 def generate_image(text_string: str, header: bool = False) -> Image.Image:
     interpret_string = text_string.split("_")

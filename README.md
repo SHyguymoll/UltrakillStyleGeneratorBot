@@ -2,8 +2,8 @@
 
 This is a bot which adds commands to make images that look like Style bonuses from the game [Ultrakill.](https://store.steampowered.com/app/1229490/ULTRAKILL/)
 
-# Requirements
-/images (source of characters)
+# Local Requirements
+/fonts (source of characters)
 
 PIL (image stitching, character generating)
 

@@ -71,5 +71,7 @@ def select_character(char_dict: dict, char: str, head: bool): #needs to return a
         return [char_dict["RIGHT_BRACKET"][head]]
     elif char == " ":
         return [char_dict["SPACE"][head]]
-    else:
+    elif char.isalpha() or char.isnumeric():
         return [char_dict[char.upper()][head]]
+    else: #skip invalid characters
+        return [char_dict["SPACE"][head]]

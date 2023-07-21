@@ -52,6 +52,7 @@ def generate_image(text_string: str, header: bool, discord_mode: bool, discord_e
     final = Image.new('RGBA', (0, 0))
     for string in interpret_string:
         if len(string) == 0: #ignore empty splits
+            print("empty split")
             continue
         if string[0].isdigit(): #checking if the first character is a number
                 current_color = select_color(int(string[0]))
@@ -61,11 +62,13 @@ def generate_image(text_string: str, header: bool, discord_mode: bool, discord_e
                     string = string[6:]
         if discord_mode: #handle like a discord message with emojis
             discord_strings = string.split("<")
+            print(discord_strings)
             if len(discord_strings) == 1: #this string has no emojis, treat it like a normal string
                 final = merge_hori(final, generate_string(string, header, current_color, custom_color))
             else: #this string has emojis, split and refer to the dictionary
                 for dis_string in discord_strings:
                     splitted = dis_string.split(">", 1)
+                    print(splitted)
                     if len(splitted) == 1: #this portion of the string has no emojis at all
                         final = merge_hori(final, generate_string(splitted[0], header, current_color, custom_color))
                     else: #the first item is an emoji reference, the second is normal text

@@ -37,11 +37,11 @@ def generate_emoji(data: bytes, single: bool) -> Image.Image:
 def generate_string(string: str, header: bool, current_color: TColor, custom_color: tuple[int]):
     final = Image.new('RGBA', (0, 0))
     for letter in string:
-        for char in select_character(characters, letter, header): #handles + and - which come with spaces
-            if current_color == TColor.CUSTOM:
-                final = merge_hori(final, generate_character(char, custom_color))
-            else:
-                final = merge_hori(final, generate_character(char, pick_color(current_color, char)))
+        char = select_character(characters, letter, header)
+        if current_color == TColor.CUSTOM:
+            final = merge_hori(final, generate_character(char, custom_color))
+        else:
+            final = merge_hori(final, generate_character(char, pick_color(current_color, char)))
     return final
 
 def generate_image(text_string: str, header: bool, discord_mode: bool, discord_emojis: dict[str, bytes]) -> Image.Image:
@@ -58,6 +58,10 @@ def generate_image(text_string: str, header: bool, discord_mode: bool, discord_e
                 if current_color == TColor.CUSTOM:
                     custom_color = pick_color(TColor.CUSTOM, string[0:6])
                     string = string[6:]
+        if string[0] == "+": #checking if first real character is +
+            string = "+   " + string[1:]
+        if string[0] == "-": #ditto for -
+            string = "-   " + string[1:]
         if discord_mode: #handle like a discord message with emojis
             discord_strings = string.split("<")
             if len(discord_strings) == 1: #this string has no emojis, treat it like a normal string

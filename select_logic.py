@@ -60,16 +60,16 @@ def select_color(val: int):
 
 def select_character(char_dict: dict, char: str, head: bool): #needs to return array
     if char == "+":
-        return [char_dict["PLUS"][head], char_dict["SPACE"][head], char_dict["SPACE"][head], char_dict["SPACE"][head]]
+        return char_dict["PLUS"][head]
     elif char == "-":
-        return [char_dict["MINUS"][head], char_dict["SPACE"][head], char_dict["SPACE"][head], char_dict["SPACE"][head]]
+        char_dict["MINUS"][head]
     elif char == "(":
-        return [char_dict["LEFT_BRACKET"][head]]
+        return char_dict["LEFT_BRACKET"][head]
     elif char == ")":
-        return [char_dict["RIGHT_BRACKET"][head]]
+        return char_dict["RIGHT_BRACKET"][head]
     elif char == " ":
-        return [char_dict["SPACE"][head]]
+        return char_dict["SPACE"][head]
     elif char.isalpha() or char.isnumeric():
-        return [char_dict[char.upper()][head]]
+        return char_dict[char.upper()][head]
     else: #skip invalid characters
-        return [char_dict["SPACE"][head]]
+        return char_dict["SPACE"][head]

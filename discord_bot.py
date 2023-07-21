@@ -17,36 +17,27 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
     return BytesObject
 
 async def validate_string(input_string: str) -> tuple[str, dict[str, bytes]]:
-    print(input_string)
     emoji_search = input_string.split(":")
     link_search = input_string.split("://")
     if len(link_search) > 2: #links are not allowed
         return "invalid text"
-    print(emoji_search)
     emoji_start = False
     new_string = ""
     emojis = {}
     for check in emoji_search:
         if not emoji_start: #this is the text preceding an emoji, don't look for an emoji here but save it
-            print(f"{check} is not an emoji.")
             emoji_start = True
             new_string += check
             continue
         
-        print(f"{check} could be an emoji")
         emoji_try = discord.utils.find(lambda m: m.name == check, client.emojis)
 
         if isinstance(emoji_try, discord.Emoji):
-            print(f"{check} was an emoji, saving it to the dictionary")
             emoji_data = await emoji_try.read()
             new_string += f"<{check}>"
             emojis[check] = emoji_data
-        elif isinstance(emoji_try, None):
-            print(f"{check} wasn't an emoji")
 
         emoji_start = False
-    print(new_string)
-    print(emojis)
     return (new_string, emojis)
     #return (input_string, emojis)
 

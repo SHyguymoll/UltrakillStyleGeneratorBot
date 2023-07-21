@@ -27,13 +27,12 @@ def generate_character(character_mask: Image.Image, color: tuple[int]) -> Image.
     char.putalpha(character_mask)
     return char
 
-def generate_emoji(data: bytes, header: bool):
+def generate_emoji(data: bytes, single: bool) -> Image.Image:
     emoji = Image.open(io.BytesIO(data))
-    if header:
-        emoji.resize((75,75), Image.Resampling.BILINEAR)
+    if single:
+        return emoji.resize((29,29), Image.Resampling.NEAREST)
     else:
-        emoji.resize((29,29), Image.Resampling.NEAREST)
-    return emoji
+        return emoji.resize((75,75), Image.Resampling.BILINEAR)
 
 def generate_string(string: str, header: bool, current_color: TColor, custom_color: tuple[int]):
     final = Image.new('RGBA', (0, 0))

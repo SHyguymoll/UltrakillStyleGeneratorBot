@@ -1,3 +1,4 @@
+import io
 from PIL import Image
 from sys import argv
 from os import makedirs, path
@@ -26,26 +27,55 @@ def generate_character(character_mask: Image.Image, color: tuple[int]) -> Image.
     char.putalpha(character_mask)
     return char
 
-def generate_image(text_string: str, header: bool = False) -> Image.Image:
+def generate_emoji(data: bytes, single: bool) -> Image.Image:
+    emoji = Image.open(io.BytesIO(data))
+    if single:
+        return emoji.resize((29,29), Image.Resampling.NEAREST)
+    else:
+        return emoji.resize((75,75), Image.Resampling.BILINEAR)
+
+def generate_string(string: str, header: bool, current_color: TColor, custom_color: tuple[int]):
+    final = Image.new('RGBA', (0, 0))
+    for letter in string:
+        for char in select_character(characters, letter, header): #handles + and - which come with spaces
+            if current_color == TColor.CUSTOM:
+                final = merge_hori(final, generate_character(char, custom_color))
+            else:
+                final = merge_hori(final, generate_character(char, pick_color(current_color, char)))
+    return final
+
+def generate_image(text_string: str, header: bool, discord_mode: bool, discord_emojis: dict[str, bytes]) -> Image.Image:
     interpret_string = text_string.split("_")
     current_color = TColor.WHITE
     custom_color = (255, 255, 255, 255)
     final = Image.new('RGBA', (0, 0))
     for string in interpret_string:
         if len(string) == 0: #ignore empty splits
+            print("empty split")
             continue
         if string[0].isdigit(): #checking if the first character is a number
-            current_color = select_color(int(string[0]))
-            string = string[1:] #remove the number as we've used it up
-            if current_color == TColor.CUSTOM:
-                custom_color = pick_color(TColor.CUSTOM, string[0:6])
-                string = string[6:]
-        for letter in string:
-            for char in select_character(characters, letter, header): #handles + and - which come with spaces
+                current_color = select_color(int(string[0]))
+                string = string[1:] #remove the number as we've used it up
                 if current_color == TColor.CUSTOM:
-                    final = merge_hori(final, generate_character(char, custom_color))
-                else:
-                    final = merge_hori(final, generate_character(char, pick_color(current_color, char)))
+                    custom_color = pick_color(TColor.CUSTOM, string[0:6])
+                    string = string[6:]
+        if discord_mode: #handle like a discord message with emojis
+            discord_strings = string.split("<")
+            print(discord_strings)
+            if len(discord_strings) == 1: #this string has no emojis, treat it like a normal string
+                final = merge_hori(final, generate_string(string, header, current_color, custom_color))
+            else: #this string has emojis, split and refer to the dictionary
+                for dis_string in discord_strings:
+                    splitted = dis_string.split(">", 1)
+                    print(splitted)
+                    if len(splitted) == 1: #this portion of the string has no emojis at all
+                        final = merge_hori(final, generate_string(splitted[0], header, current_color, custom_color))
+                    else: #the first item is an emoji reference, the second is normal text
+                        final = merge_hori(final, generate_emoji(discord_emojis[splitted[0]], header))
+                        final = merge_hori(final, generate_string(splitted[1], header, current_color, custom_color))
+
+        else: #handle like a normal string
+            final = generate_string(string, header, current_color, custom_color)
     return final
 
 def merge_hori(im1: Image.Image, im2: Image.Image) -> Image.Image:
@@ -64,10 +94,10 @@ def merge_vert(im1: Image.Image, im2: Image.Image) -> Image.Image:
     im.paste(im2, (0, im1.size[1]))
     return im
 
-def full_image(str: list) -> Image.Image:
+def full_image(str: list, discord_mode: bool = False, discord_emojis: dict[str, bytes] = {}) -> Image.Image:
     imgs = []
     for ind in range(len(str)):
-        imgs.append(generate_image(str[ind], True if ind != 0 else False))
+        imgs.append(generate_image(str[ind], True if ind != 0 else False, discord_mode, discord_emojis))
     comp_image = Image.new('RGBA', (0, 0))
     for img in imgs:
         comp_image = merge_vert(comp_image, img)

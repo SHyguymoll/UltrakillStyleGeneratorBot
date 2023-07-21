@@ -1,5 +1,6 @@
 from generate_image import *
 import discord
+import re
 from io import BytesIO
 
 intents = discord.Intents.default()
@@ -15,9 +16,38 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
     BytesObject.seek(0)
     return BytesObject
 
+async def validate_string(input_string: str) -> tuple[str, dict[str, bytes]]:
+    print(input_string)
+    emoji_search = input_string.split(":")
+    link_search = input_string.split("://")
+    if len(link_search) > 2: #links are not allowed
+        return "invalid text"
+    print(emoji_search)
+    emoji_start = False
+    new_string = ""
+    emojis = {}
+    for check in emoji_search:
+        if not emoji_start: #this is the text preceding an emoji, don't look for an emoji here but save it
+            emoji_start = True
+            new_string += check
+            continue
+
+        emoji_try = discord.utils.get(client.emojis, name=check)
+
+        if emoji_try is discord.Emoji:
+            emoji_data = await emoji_try.read()
+            new_string += f"<{check}>"
+            emojis[check] = emoji_data
+
+        emoji_start = False
+    print(new_string)
+    return (new_string, emojis)
+    #return (input_string, emojis)
+
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
 async def generate(interaction: discord.Interaction, name: str, string: str, silent: bool):
-    final_image = convertPILimgToBytes(full_image(string.split("|")))
+    valid_string, emojis = await validate_string(string)
+    final_image = convertPILimgToBytes(full_image(valid_string.split("|"), True, emojis))
     act_name = name + ".png"
     text = str("Text: " + name)
     file = discord.File(fp=final_image,filename=act_name)
@@ -52,6 +82,8 @@ async def on_ready():
 
 def read_token() -> str:
     with open("token.txt") as f:
-        return f.readline()
+        tok = f.readline().split(" - ", 1)
+        print(tok[0])
+        return tok[1]
 
 client.run(read_token())

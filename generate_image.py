@@ -1,5 +1,6 @@
 import io
-from PIL import Image
+from PIL import Image, ImageColor, ImageFont, ImageDraw
+from pilmoji import Pilmoji
 from sys import argv
 from os import makedirs, path
 from select_logic import *
@@ -27,21 +28,50 @@ def generate_character(character_mask: Image.Image, color: tuple[int]) -> Image.
     char.putalpha(character_mask)
     return char
 
-def generate_emoji(data: bytes, single: bool) -> Image.Image:
-    emoji = Image.open(io.BytesIO(data))
-    if single:
-        return emoji.resize((29,29), Image.Resampling.NEAREST)
-    else:
-        return emoji.resize((75,75), Image.Resampling.BILINEAR)
+def get_text_dimensions(text_string: str, font: ImageFont.FreeTypeFont):
+    # https://stackoverflow.com/a/46220683/9263761
+    _ascent, descent = font.getmetrics()
+
+    text_width = font.getmask(text_string).getbbox()[2]
+    text_height = font.getmask(text_string).getbbox()[3] + descent
+
+    return (text_width, text_height)
+
+NO_COLOR = ImageColor.getrgb("#FFFFFF00")
+BLACK = (0, 0, 0)
+
+SINGLE_SIZE = (29,29)
+HEADER_SIZE = (75,75)
+
+def draw_unicode_emoji(string: str, single: bool):
+    font = ImageFont.truetype('arial.ttf', 80)
+    dimensions = get_text_dimensions(string, font)
+    dimensions = Pilmoji(Image.new('RGBA', (0,0), NO_COLOR)).getsize(string, font)
+    with Image.new('RGBA', dimensions, NO_COLOR) as img:
+        with Pilmoji(img) as pilmoji:
+            pilmoji.text(xy=(0, 0), text=string, fill=BLACK, font=font)
+        if not single:
+            return img.resize(HEADER_SIZE, Image.Resampling.BILINEAR)
+        else:
+            return img.resize(SINGLE_SIZE, Image.Resampling.NEAREST)
+
+def generate_emoji(data: bytes | str, single: bool) -> Image.Image:
+    if isinstance(data, bytes):
+        return Image.open(io.BytesIO(data)).resize(
+                SINGLE_SIZE if single else HEADER_SIZE,
+                Image.Resampling.NEAREST if single else Image.Resampling.BILINEAR
+        )
+    if isinstance(data, str):
+        return draw_unicode_emoji(data, single)
 
 def generate_string(string: str, header: bool, current_color: TColor, custom_color: tuple[int]):
     final = Image.new('RGBA', (0, 0))
     for letter in string:
-        for char in select_character(characters, letter, header): #handles + and - which come with spaces
-            if current_color == TColor.CUSTOM:
-                final = merge_hori(final, generate_character(char, custom_color))
-            else:
-                final = merge_hori(final, generate_character(char, pick_color(current_color, char)))
+        char = select_character(characters, letter, header)
+        if current_color == TColor.CUSTOM:
+            final = merge_hori(final, generate_character(char, custom_color))
+        else:
+            final = merge_hori(final, generate_character(char, pick_color(current_color, char)))
     return final
 
 def generate_image(text_string: str, header: bool, discord_mode: bool, discord_emojis: dict[str, bytes]) -> Image.Image:
@@ -51,7 +81,6 @@ def generate_image(text_string: str, header: bool, discord_mode: bool, discord_e
     final = Image.new('RGBA', (0, 0))
     for string in interpret_string:
         if len(string) == 0: #ignore empty splits
-            print("empty split")
             continue
         if string[0].isdigit(): #checking if the first character is a number
                 current_color = select_color(int(string[0]))
@@ -59,15 +88,17 @@ def generate_image(text_string: str, header: bool, discord_mode: bool, discord_e
                 if current_color == TColor.CUSTOM:
                     custom_color = pick_color(TColor.CUSTOM, string[0:6])
                     string = string[6:]
+        if string[0] == "+": #checking if first real character is +
+            string = "+   " + string[1:]
+        if string[0] == "-": #ditto for -
+            string = "-   " + string[1:]
         if discord_mode: #handle like a discord message with emojis
             discord_strings = string.split("<")
-            print(discord_strings)
             if len(discord_strings) == 1: #this string has no emojis, treat it like a normal string
                 final = merge_hori(final, generate_string(string, header, current_color, custom_color))
             else: #this string has emojis, split and refer to the dictionary
                 for dis_string in discord_strings:
                     splitted = dis_string.split(">", 1)
-                    print(splitted)
                     if len(splitted) == 1: #this portion of the string has no emojis at all
                         final = merge_hori(final, generate_string(splitted[0], header, current_color, custom_color))
                     else: #the first item is an emoji reference, the second is normal text

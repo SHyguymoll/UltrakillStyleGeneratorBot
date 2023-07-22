@@ -1,5 +1,6 @@
 import io
-from PIL import Image
+from PIL import Image, ImageColor, ImageFont, ImageDraw
+from pilmoji import Pilmoji
 from sys import argv
 from os import makedirs, path
 from select_logic import *
@@ -27,12 +28,40 @@ def generate_character(character_mask: Image.Image, color: tuple[int]) -> Image.
     char.putalpha(character_mask)
     return char
 
-def generate_emoji(data: bytes, single: bool) -> Image.Image:
-    emoji = Image.open(io.BytesIO(data))
-    if single:
-        return emoji.resize((29,29), Image.Resampling.NEAREST)
-    else:
-        return emoji.resize((75,75), Image.Resampling.BILINEAR)
+def get_text_dimensions(text_string: str, font: ImageFont.FreeTypeFont):
+    # https://stackoverflow.com/a/46220683/9263761
+    _ascent, descent = font.getmetrics()
+
+    text_width = font.getmask(text_string).getbbox()[2]
+    text_height = font.getmask(text_string).getbbox()[3] + descent
+
+    return (text_width, text_height)
+
+NO_COLOR = ImageColor.getrgb("#FFFFFF00")
+BLACK = (0, 0, 0)
+
+SINGLE_SIZE = (29,29)
+HEADER_SIZE = (75,75)
+
+def draw_unicode_emoji(string: str, single: bool):
+    font = ImageFont.truetype('arial.ttf', 80)
+    dimensions = get_text_dimensions(string, font)
+    with Image.new('RGBA', dimensions, NO_COLOR) as img:
+        with Pilmoji(img) as pilmoji:
+            pilmoji.text((0, dimensions[1]), string, BLACK, font, "ld")
+            if not single:
+                return img.resize(HEADER_SIZE, Image.Resampling.BILINEAR)
+            else:
+                return img.resize(SINGLE_SIZE, Image.Resampling.NEAREST)
+
+def generate_emoji(data: bytes | str, single: bool) -> Image.Image:
+    if isinstance(data, bytes):
+        return Image.open(io.BytesIO(data)).resize(
+                SINGLE_SIZE if single else HEADER_SIZE,
+                Image.Resampling.NEAREST if single else Image.Resampling.BILINEAR
+        )
+    if isinstance(data, str):
+        return draw_unicode_emoji(data, single)
 
 def generate_string(string: str, header: bool, current_color: TColor, custom_color: tuple[int]):
     final = Image.new('RGBA', (0, 0))

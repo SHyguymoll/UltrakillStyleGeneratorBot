@@ -17,7 +17,32 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
     BytesObject.seek(0)
     return BytesObject
 
-async def emoji_clean(string: str, name_pattern: str, split_pattern: str, current_dict: dict[str, bytes]) -> tuple[str, dict[str, bytes]]:
+def surround_unicode(string: str) -> tuple[str, dict[str, bytes | str]]:
+    new_string = string
+    positions = []
+    emojis_early = {}
+    start = 0
+    pen_down = False
+    for ind, char in enumerate(string):
+        if ord(char) > 126:
+            if not pen_down:
+                start = ind
+                pen_down = True
+        else:
+            if pen_down:
+                positions.append((start, ind))
+                emojis_early[string[start:ind]] = string[start:ind]
+                pen_down = False
+    if pen_down:
+        positions.append((start, len(string)))
+        emojis_early[string[start:len(string)]] = string[start:len(string)]
+        pen_down = False
+    for left, right in positions[::-1]:
+        new_string = new_string[0:right] + ">" + new_string[right+1:]
+        new_string = new_string[0:left] + "<" + new_string[left:]
+    return (new_string, emojis_early)
+
+async def emoji_clean(string: str, name_pattern: str, split_pattern: str, current_dict: dict[str, bytes | str]) -> tuple[str, dict[str, bytes | str]]:
     emoji_candidates = re.findall(name_pattern, string)
     emoji_queue = deque()
     new_string = ""
@@ -34,12 +59,14 @@ async def emoji_clean(string: str, name_pattern: str, split_pattern: str, curren
         new_string += split_strings.pop(0)
     return new_string, current_dict
 
-async def validate_string(input_string: str) -> tuple[str, dict[str, bytes]]:
+async def validate_string(input_string: str) -> tuple[str, dict[str, bytes | str]]:
     if re.search(r"https?://", input_string): #links are not allowed
         return "invalid text"
     
-    new_string, emojis = await emoji_clean(input_string, r"<:(?P<name>.+?):.+?>", r"<:.+?:.+?>", {}) #standard emoji
-    new_string, emojis = await emoji_clean(new_string, r":(?P<name>[^<>]+?):", r":[^<>]+?:", emojis) #unautocorrected emoji
+    new_string, emojis = surround_unicode(input_string) #unicode emoji
+
+    new_string, emojis = await emoji_clean(new_string, r"<:(?P<name>.+?):.+?>", r"<:.+?:.+?>", emojis) #custom emoji
+    new_string, emojis = await emoji_clean(new_string, r":(?P<name>[^<>]+?):", r":[^<>]+?:", emojis) #unautocorrected custom emoji
     
     return (new_string, emojis)
 

@@ -1,7 +1,8 @@
 from generate_image import *
 import discord
-import re
+from collections import namedtuple, deque
 from io import BytesIO
+import re
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -16,39 +17,58 @@ def convertPILimgToBytes(PILimg: Image.Image) -> BytesIO:
     BytesObject.seek(0)
     return BytesObject
 
-async def validate_string(input_string: str) -> tuple[str, dict[str, bytes]]:
-    print(input_string)
-    emoji_search = input_string.split(":")
-    link_search = input_string.split("://")
-    if len(link_search) > 2: #links are not allowed
-        return "invalid text"
-    print(emoji_search)
-    emoji_start = False
+def surround_unicode(string: str) -> tuple[str, dict[str, bytes | str]]:
+    new_string = string
+    positions = []
+    emojis_early = {}
+    start = 0
+    pen_down = False
+    for ind, char in enumerate(string):
+        if ord(char) > 126:
+            if not pen_down:
+                start = ind
+                pen_down = True
+        else:
+            if pen_down:
+                positions.append((start, ind))
+                emojis_early[string[start:ind]] = string[start:ind]
+                pen_down = False
+    if pen_down:
+        positions.append((start, len(string)))
+        emojis_early[string[start:len(string)]] = string[start:len(string)]
+        pen_down = False
+    for left, right in positions[::-1]:
+        new_string = new_string[0:right] + ">" + new_string[right:]
+        new_string = new_string[0:left] + "<" + new_string[left:]
+    return (new_string, emojis_early)
+
+async def emoji_clean(string: str, name_pattern: str, split_pattern: str, current_dict: dict[str, bytes | str]) -> tuple[str, dict[str, bytes | str]]:
+    emoji_candidates = re.findall(name_pattern, string)
+    emoji_queue = deque()
     new_string = ""
-    emojis = {}
-    for check in emoji_search:
-        if not emoji_start: #this is the text preceding an emoji, don't look for an emoji here but save it
-            print(f"{check} is not an emoji.")
-            emoji_start = True
-            new_string += check
-            continue
-        
-        print(f"{check} could be an emoji")
-        emoji_try = discord.utils.find(lambda m: m.name == check, client.emojis)
+    for cand in emoji_candidates:
+        emoji_queue.append(cand)
+        em_try = discord.utils.find(lambda m: m.name == cand, client.emojis)
+        if isinstance(em_try, discord.Emoji):
+            emoji_data = await em_try.read()
+            current_dict[cand] = emoji_data
+    split_strings = re.split(split_pattern, string)
+    new_string += split_strings.pop(0)
+    while emoji_queue:
+        new_string += f"<{emoji_queue.popleft()}>"
+        new_string += split_strings.pop(0)
+    return new_string, current_dict
 
-        if isinstance(emoji_try, discord.Emoji):
-            print(f"{check} was an emoji, saving it to the dictionary")
-            emoji_data = await emoji_try.read()
-            new_string += f"<{check}>"
-            emojis[check] = emoji_data
-        elif isinstance(emoji_try, None):
-            print(f"{check} wasn't an emoji")
+async def validate_string(input_string: str) -> tuple[str, dict[str, bytes | str]]:
+    if re.search(r"https?://", input_string): #links are not allowed
+        return "invalid text"
+    
+    new_string, emojis = surround_unicode(input_string) #unicode emoji
 
-        emoji_start = False
-    print(new_string)
-    print(emojis)
+    new_string, emojis = await emoji_clean(new_string, r"<:(?P<name>.+?):.+?>", r"<:.+?:.+?>", emojis) #custom emoji
+    new_string, emojis = await emoji_clean(new_string, r":(?P<name>[^<>]+?):", r":[^<>]+?:", emojis) #unautocorrected custom emoji
+    
     return (new_string, emojis)
-    #return (input_string, emojis)
 
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
 async def generate(interaction: discord.Interaction, name: str, string: str, silent: bool):
@@ -69,7 +89,7 @@ async def help(interaction: discord.Interaction):
 How to use this bot:
 name: what the image will be titled
 string: a specially formatted string which will be used to make the image.
-This bot supports a-Z, 0-9, +, -, (, and ). It also supports emojis, but not at the beginning of a word.
+This bot supports a-Z, 0-9, +, -, (, and ). It also supports emojis, but for server-based emojis, the bot must be present there.
 Separate strings with |.
 Start each line with a number from 0-6 to define its color. You can change the color on the fly with _x, where x is a number from 0-6.
 The colors, in order, are White, Orange, Green, Blue, Red, Gold, and Custom.

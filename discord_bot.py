@@ -89,7 +89,7 @@ async def help(interaction: discord.Interaction):
 How to use this bot:
 name: what the image will be titled
 string: a specially formatted string which will be used to make the image.
-This bot supports a-Z, 0-9, +, -, (, and ). It also supports emojis, but not at the beginning of a word.
+This bot supports a-Z, 0-9, +, -, (, and ). It also supports emojis, but for server-based emojis, the bot must be present there.
 Separate strings with |.
 Start each line with a number from 0-6 to define its color. You can change the color on the fly with _x, where x is a number from 0-6.
 The colors, in order, are White, Orange, Green, Blue, Red, Gold, and Custom.

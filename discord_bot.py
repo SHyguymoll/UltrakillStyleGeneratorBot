@@ -65,7 +65,7 @@ async def validate_string(input_string: str) -> tuple[str, dict]:
     
     new_string, emojis = surround_unicode(input_string) #unicode emoji
 
-    new_string, emojis = await emoji_clean(new_string, r"<:(?P<name>.+?):.+?>", r"<:.+?:.+?>", emojis) #custom emoji
+    new_string, emojis = await emoji_clean(new_string, r"<:a?(?P<name>.+?):.+?>", r"<a?:.+?:.+?>", emojis) #custom emoji
     new_string, emojis = await emoji_clean(new_string, r":(?P<name>[^<>]+?):", r":[^<>]+?:", emojis) #unautocorrected custom emoji
     
     return (new_string, emojis)

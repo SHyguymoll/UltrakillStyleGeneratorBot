@@ -38,7 +38,7 @@ def surround_unicode(string: str) -> tuple[str, dict[str, bytes | str]]:
         emojis_early[string[start:len(string)]] = string[start:len(string)]
         pen_down = False
     for left, right in positions[::-1]:
-        new_string = new_string[0:right] + ">" + new_string[right+1:]
+        new_string = new_string[0:right] + ">" + new_string[right:]
         new_string = new_string[0:left] + "<" + new_string[left:]
     return (new_string, emojis_early)
 

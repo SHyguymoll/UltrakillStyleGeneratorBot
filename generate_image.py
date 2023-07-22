@@ -46,13 +46,14 @@ HEADER_SIZE = (75,75)
 def draw_unicode_emoji(string: str, single: bool):
     font = ImageFont.truetype('arial.ttf', 80)
     dimensions = get_text_dimensions(string, font)
+    dimensions = Pilmoji(Image.new('RGBA', (0,0), NO_COLOR)).getsize(string, font)
     with Image.new('RGBA', dimensions, NO_COLOR) as img:
         with Pilmoji(img) as pilmoji:
-            pilmoji.text((0, dimensions[1]), string, BLACK, font, "ld")
-            if not single:
-                return img.resize(HEADER_SIZE, Image.Resampling.BILINEAR)
-            else:
-                return img.resize(SINGLE_SIZE, Image.Resampling.NEAREST)
+            pilmoji.text(xy=(0, 0), text=string, fill=BLACK, font=font)
+        if not single:
+            return img.resize(HEADER_SIZE, Image.Resampling.BILINEAR)
+        else:
+            return img.resize(SINGLE_SIZE, Image.Resampling.NEAREST)
 
 def generate_emoji(data: bytes | str, single: bool) -> Image.Image:
     if isinstance(data, bytes):

@@ -52,6 +52,7 @@ async def emoji_clean(string: str, name_pattern: str, split_pattern: str, curren
         if isinstance(em_try, discord.Emoji):
             emoji_data = await em_try.read()
             current_dict[cand] = emoji_data
+
     split_strings = re.split(split_pattern, string)
     new_string += split_strings.pop(0)
     while emoji_queue:
@@ -65,7 +66,7 @@ async def validate_string(input_string: str) -> tuple[str, dict]:
     
     new_string, emojis = surround_unicode(input_string) #unicode emoji
 
-    new_string, emojis = await emoji_clean(new_string, r"<:a?(?P<name>.+?):.+?>", r"<a?:.+?:.+?>", emojis) #custom emoji
+    new_string, emojis = await emoji_clean(new_string, r"<a?:(?P<name>.+?):.+?>", r"<a?:.+?:.+?>", emojis) #custom emoji
     new_string, emojis = await emoji_clean(new_string, r":(?P<name>[^<>]+?):", r":[^<>]+?:", emojis) #unautocorrected custom emoji
     
     return (new_string, emojis)

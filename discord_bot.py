@@ -42,7 +42,7 @@ def surround_unicode(string: str) -> tuple[str, dict]:
         new_string = new_string[0:left] + "<" + new_string[left:]
     return (new_string, emojis_early)
 
-async def emoji_clean(string: str, name_pattern: str, split_pattern: str, current_dict: dict[str, bytes | str], guild_id: int) -> tuple[str, dict[str, bytes | str]]:
+async def emoji_clean(string: str, name_pattern: str, split_pattern: str, current_dict: dict, guild_id: int) -> tuple[str, dict]:
     emoji_candidates = re.findall(name_pattern, string)
     emoji_queue = deque()
     new_string = ""
@@ -62,7 +62,7 @@ async def emoji_clean(string: str, name_pattern: str, split_pattern: str, curren
         new_string += split_strings.pop(0)
     return new_string, current_dict
 
-async def validate_string(input_string: str, guild_id: int) -> tuple[str, dict[str, bytes | str]]:
+async def validate_string(input_string: str, guild_id: int) -> tuple[str, dict]:
     if re.search(r"https?://", input_string): #links are not allowed
         return "invalid text"
     

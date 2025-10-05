@@ -77,6 +77,8 @@ def generate_string(string: str, header: bool, current_color: TColor, custom_col
             final = merge_hori(final, generate_character(char, custom_color))
         else:
             final = merge_hori(final, generate_character(char, pick_color(current_color, char)))
+    #final.show()
+    #input("press to continue")
     return final
 
 def generate_image(text_string: str, header: bool, discord_mode: bool, discord_emojis: dict[str, bytes]) -> Image.Image:
@@ -111,7 +113,7 @@ def generate_image(text_string: str, header: bool, discord_mode: bool, discord_e
                         final = merge_hori(final, generate_string(splitted[1], header, current_color, custom_color))
 
         else: #handle like a normal string
-            final = generate_string(string, header, current_color, custom_color)
+            final = merge_hori(final, generate_string(string, header, current_color, custom_color))
     return final
 
 def merge_hori(im1: Image.Image, im2: Image.Image) -> Image.Image:

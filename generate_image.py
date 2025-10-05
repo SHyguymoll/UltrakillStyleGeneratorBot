@@ -141,8 +141,14 @@ def full_image(str: list, discord_mode: bool = False, discord_emojis: dict[str, 
 
 if __name__ == "__main__":
     load_characters("images/")
+    if len(argv) < 2:
+        print("Error: missing filepath.")
+        exit(1)
     filename = argv[1]
     dir = filename[::-1].split("/", 1)[1][::-1] + "/" #this returns just the leading path to the actual file
+    if len(argv) < 3:
+        print("Error: missing text to generate.")
+        exit(1)
     if not path.exists(dir):
         makedirs(dir)
     comp_image = full_image(argv[2:])
@@ -151,3 +157,4 @@ if __name__ == "__main__":
     if option.lower() in ["y", "yes"]:
         comp_image.save(filename)
     comp_image.close()
+    exit(0)

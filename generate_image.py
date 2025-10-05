@@ -55,7 +55,7 @@ def draw_unicode_emoji(string: str, single: bool):
         else:
             return img.resize(SINGLE_SIZE, Image.Resampling.NEAREST)
 
-def generate_emoji(data: bytes | str, single: bool) -> Image.Image:
+def generate_emoji(data, single: bool) -> Image.Image:
     if data == b"delete_me":
         return Image.new('RGBA', (0,0)).resize(
                 SINGLE_SIZE if single else HEADER_SIZE,

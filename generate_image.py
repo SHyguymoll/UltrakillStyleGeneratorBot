@@ -145,12 +145,12 @@ if __name__ == "__main__":
         print("Error: missing filepath.")
         exit(1)
     filename = argv[1]
-    dir = filename[::-1].split("/", 1)[1][::-1] + "/" #this returns just the leading path to the actual file
     if len(argv) < 3:
         print("Error: missing text to generate.")
         exit(1)
-    if not path.exists(dir):
-        makedirs(dir)
+    if path.split(filename)[0] != '':
+        if not path.exists(path.split(filename)[0]):
+            makedirs(path.split(filename)[0])
     comp_image = full_image(argv[2:])
     comp_image.show()
     option = input("save?")

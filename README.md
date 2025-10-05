@@ -7,11 +7,16 @@ This is a bot which adds commands to make images that look like Style bonuses fr
 
 PIL (image stitching, character generating)
 
+pilmoji (emoji support)
+emoji 1.7 (actually works lmao)
+
 sys (command line args)
 
 enum (color enums)
 
 os (generating directories)
+
+install needed modules with `python3 -m pip -r requirements.txt`
 
 # How to use locally
 ```python3 generate_image.py <file out with local path> <text> [<text> , ...]```

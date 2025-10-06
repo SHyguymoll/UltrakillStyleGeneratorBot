@@ -86,7 +86,7 @@ async def validate_string(input_string: str, guild_id: int) -> tuple[str, dict]:
 
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
 async def generate(interaction: discord.Interaction, name: str, string: str, silent: bool):
-    logging.info(f"Recieved string {string} from user {interaction.user.name}{f" in guild {interaction.guild.name}" if interaction.guild is not None else ""}")
+    logging.info(f"Recieved string {string} from user {interaction.user.name}{(" in guild " + interaction.guild.name) if interaction.guild is not None else ""}")
     valid_string, emojis = await validate_string(string, interaction.guild_id)
     final_image = convertPILimgToBytes(full_image(valid_string.split("|"), True, emojis))
     act_name = name + ".png"

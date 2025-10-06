@@ -62,7 +62,7 @@ def select_character(char_dict: dict, char: str, head: bool): #needs to return a
     if char == "+":
         return char_dict["PLUS"][head]
     elif char == "-":
-        char_dict["MINUS"][head]
+        return char_dict["MINUS"][head]
     elif char == "(":
         return char_dict["LEFT_BRACKET"][head]
     elif char == ")":

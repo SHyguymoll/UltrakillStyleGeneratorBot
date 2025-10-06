@@ -75,7 +75,7 @@ async def emoji_clean(string: str, name_pattern: str, split_pattern: str, curren
 async def validate_string(input_string: str, guild_id: int) -> tuple[str, dict]:
     if re.search(r"https?://", input_string): #links are not allowed
         logging.warning(f"{input_string} has a link, not on my watch")
-        return "invalid text"
+        return ("invalid text", {})
     
     new_string, emojis = surround_unicode(input_string) #unicode emoji
 

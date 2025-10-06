@@ -3,6 +3,16 @@ import discord
 from collections import namedtuple, deque
 from io import BytesIO
 import re
+import logging
+
+logging.basicConfig(
+    filename="bot.log",
+    encoding="utf-8",
+    filemode="a",
+    format="{asctime} - {levelname} - {message}",
+    style="{",
+    datefmt="%Y-%m-%d %H:%M",
+)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -64,6 +74,7 @@ async def emoji_clean(string: str, name_pattern: str, split_pattern: str, curren
 
 async def validate_string(input_string: str, guild_id: int) -> tuple[str, dict]:
     if re.search(r"https?://", input_string): #links are not allowed
+        logging.warning(f"{input_string} has a link, not on my watch")
         return "invalid text"
     
     new_string, emojis = surround_unicode(input_string) #unicode emoji
@@ -75,9 +86,11 @@ async def validate_string(input_string: str, guild_id: int) -> tuple[str, dict]:
 
 @tree.command(name = "generate_text", description ="Characters Supported: a-Z, 0-9, +, -, (, ) || Separate strings with |")
 async def generate(interaction: discord.Interaction, name: str, string: str, silent: bool):
+    logging.info(f"Recieved string {string} from user {interaction.user.name}{f" in guild {interaction.guild.name}" if interaction.guild is not None else ""}")
     valid_string, emojis = await validate_string(string, interaction.guild_id)
     final_image = convertPILimgToBytes(full_image(valid_string.split("|"), True, emojis))
     act_name = name + ".png"
+    logging.info(f"image {act_name} successfully generated, sending over Discord...")
     text = str("Text: " + name)
     file = discord.File(fp=final_image,filename=act_name)
     if not silent:
@@ -85,6 +98,7 @@ async def generate(interaction: discord.Interaction, name: str, string: str, sil
     else:
         await interaction.response.send_message(file=file)
     file.close()
+    logging.info(f"image {act_name} successfully sent!")
 
 @tree.command(name="help", description="shows help")
 async def help(interaction: discord.Interaction):
